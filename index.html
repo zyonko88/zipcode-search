@@ -3,177 +3,197 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>郵便番号検索</title>
+<title>🌸 住所かんたん検索</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: "Noto Sans JP", "Hiragino Sans", sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Noto Sans JP', 'Hiragino Maru Gothic Pro', sans-serif;
     min-height: 100vh;
-    padding: 40px 16px 60px;
+    background: linear-gradient(160deg, #ffd6e7 0%, #ffb3d1 45%, #ff85c0 100%);
+    padding: 32px 16px 60px;
   }
 
-  .container { width: 100%; max-width: 520px; margin: 0 auto; }
+  .container { max-width: 500px; margin: 0 auto; }
 
   /* ヒーロー */
-  .hero { text-align: center; margin-bottom: 28px; }
-  .hero-icon { font-size: 2.8rem; display: block; margin-bottom: 10px; }
-  .hero h1 { font-size: 1.6rem; font-weight: 900; color: #fff; letter-spacing: 1px; margin-bottom: 4px; }
-  .hero p  { font-size: 0.88rem; color: rgba(255,255,255,0.75); }
+  .hero { text-align: center; margin-bottom: 24px; }
+  .hero-icon { font-size: 3.2rem; display: block; animation: bounce 2s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .hero h1 { font-size: 1.7rem; font-weight: 900; color: #fff; text-shadow: 0 2px 12px rgba(210,60,120,0.3); margin: 8px 0 4px; }
+  .hero p  { font-size: 0.85rem; color: rgba(255,255,255,0.85); }
 
-  /* カード共通 */
+  /* カード */
   .card {
-    background: #fff;
-    border-radius: 20px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
     padding: 24px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 32px rgba(220,80,140,0.18), 0 2px 8px rgba(0,0,0,0.06);
     margin-bottom: 16px;
-    animation: fadeUp 0.3s ease;
+    animation: fadeUp 0.35s ease both;
   }
 
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
   }
 
-  /* 検索 */
-  .input-wrap { position: relative; margin-bottom: 12px; }
+  /* 入力 */
+  .input-wrap { position: relative; margin-bottom: 14px; }
 
   .input-wrap input {
     width: 100%;
     padding: 16px 48px 16px 20px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 1.4rem;
-    font-family: inherit;
-    letter-spacing: 4px;
+    border: 2.5px solid #fbb6ce;
+    border-radius: 16px;
+    font-size: 1.6rem;
+    letter-spacing: 6px;
     text-align: center;
+    font-family: inherit;
+    font-weight: 700;
+    color: #be185d;
+    background: #fff0f6;
     outline: none;
-    color: #2d3748;
-    background: #f7f8fa;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
 
   .input-wrap input:focus {
-    border-color: #667eea;
+    border-color: #f472b6;
+    box-shadow: 0 0 0 4px rgba(244,114,182,0.18);
     background: #fff;
-    box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
   }
 
-  .input-wrap input::placeholder { color: #c0c0c0; letter-spacing: 2px; font-size: 1.1rem; }
+  .input-wrap input::placeholder { color: #f9a8d4; letter-spacing: 3px; font-size: 1.2rem; font-weight: 400; }
 
   .clear-btn {
     position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-    background: #e2e8f0; border: none; border-radius: 50%;
-    width: 28px; height: 28px; font-size: 0.8rem; cursor: pointer;
-    color: #718096; display: none; align-items: center; justify-content: center;
+    background: #fce7f3; border: none; border-radius: 50%;
+    width: 30px; height: 30px; font-size: 0.85rem; cursor: pointer;
+    color: #db2777; display: none; align-items: center; justify-content: center;
+    transition: background 0.2s;
   }
   .clear-btn.show { display: flex; }
-  .clear-btn:hover { background: #cbd5e0; }
+  .clear-btn:hover { background: #fbcfe8; }
 
   .search-btn {
-    width: 100%; padding: 14px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff; border: none; border-radius: 12px;
-    font-size: 1rem; font-weight: 800; letter-spacing: 1px;
-    cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, #f9a8d4, #ec4899);
+    color: #fff; border: none; border-radius: 16px;
+    font-size: 1.05rem; font-weight: 900; letter-spacing: 1px;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 4px 16px rgba(236,72,153,0.35);
+    transition: transform 0.15s, opacity 0.2s;
   }
-  .search-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  .search-btn:hover:not(:disabled) { transform: translateY(-2px); opacity: 0.92; }
+  .search-btn:active:not(:disabled) { transform: scale(0.97); }
   .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* 住所結果 */
-  .addr-zip  { font-size: 0.8rem; font-weight: 700; color: #a0aec0; letter-spacing: 2px; text-align: center; margin-bottom: 12px; }
-  .addr-body { text-align: center; margin-bottom: 16px; }
-  .addr-pref { font-size: 1rem; color: #667eea; font-weight: 700; margin-bottom: 2px; }
-  .addr-city { font-size: 1.9rem; font-weight: 900; color: #2d3748; line-height: 1.3; margin-bottom: 2px; }
-  .addr-town { font-size: 1.1rem; color: #4a5568; font-weight: 600; }
+  /* セクションタイトル */
+  .section-title {
+    font-size: 0.75rem; font-weight: 700; color: #f472b6;
+    letter-spacing: 2px; margin-bottom: 14px; text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .section-title::before, .section-title::after {
+    content: ''; flex: 1; height: 1px; background: #fce7f3;
+  }
 
-  .copy-btn {
-    width: 100%; padding: 11px; background: #f7f8fa;
-    border: 2px solid #e2e8f0; border-radius: 10px;
-    font-size: 0.88rem; font-weight: 700; color: #4a5568; cursor: pointer;
+  /* 住所結果 */
+  .addr-zip  { font-size: 0.82rem; font-weight: 700; color: #f9a8d4; letter-spacing: 3px; text-align: center; margin-bottom: 10px; }
+  .addr-pref { font-size: 1rem; color: #ec4899; font-weight: 700; text-align: center; margin-bottom: 2px; }
+  .addr-city { font-size: 2rem; font-weight: 900; color: #be185d; text-align: center; line-height: 1.3; }
+  .addr-town { font-size: 1.1rem; color: #db2777; text-align: center; margin-bottom: 16px; }
+
+  /* しゃべるボタン */
+  .speak-btn {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    border: 2px solid #f9a8d4;
+    border-radius: 14px;
+    font-size: 0.95rem; font-weight: 700; color: #be185d;
+    cursor: pointer; font-family: inherit; margin-bottom: 10px;
     transition: all 0.2s;
   }
-  .copy-btn:hover  { background: #edf2f7; border-color: #667eea; color: #667eea; }
-  .copy-btn.copied { background: #f0fff4; border-color: #48bb78; color: #38a169; }
+  .speak-btn:hover { background: linear-gradient(135deg, #fbcfe8, #f9a8d4); transform: translateY(-1px); }
+  .speak-btn:active { transform: scale(0.97); }
+
+  .copy-btn {
+    width: 100%; padding: 11px;
+    background: #fff; border: 2px solid #fbb6ce;
+    border-radius: 14px; font-size: 0.88rem; font-weight: 700;
+    color: #db2777; cursor: pointer; font-family: inherit; transition: all 0.2s;
+  }
+  .copy-btn:hover  { background: #fff0f6; border-color: #f472b6; }
+  .copy-btn.copied { background: #f0fff4; border-color: #6ee7b7; color: #059669; }
 
   /* 天気 */
-  .weather-title {
-    font-size: 0.78rem; font-weight: 700; color: #a0aec0;
-    letter-spacing: 2px; margin-bottom: 14px; text-align: center;
-  }
+  .weather-main { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 16px; }
+  .weather-emoji { font-size: 4rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .weather-info-main { text-align: left; }
+  .weather-temp { font-size: 2.8rem; font-weight: 900; color: #be185d; line-height: 1; }
+  .weather-desc { font-size: 1rem; color: #ec4899; font-weight: 700; margin-top: 4px; }
 
-  .weather-now {
-    display: flex; align-items: center; justify-content: center;
-    gap: 16px; margin-bottom: 20px;
-  }
-
-  .weather-icon-big { font-size: 3.2rem; }
-
-  .weather-now-info { text-align: left; }
-  .weather-temp { font-size: 2.4rem; font-weight: 900; color: #2d3748; }
-  .weather-desc { font-size: 0.92rem; color: #718096; margin-top: 2px; }
-
-  .weather-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 10px; margin-bottom: 20px;
-  }
-
-  .weather-item {
-    background: #f7f8fa; border-radius: 10px;
-    padding: 12px 8px; text-align: center;
-  }
-
-  .weather-item-label { font-size: 0.72rem; color: #a0aec0; font-weight: 700; margin-bottom: 4px; }
-  .weather-item-value { font-size: 1rem; font-weight: 800; color: #2d3748; }
+  .weather-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .weather-item { background: #fff0f6; border-radius: 14px; padding: 12px 8px; text-align: center; }
+  .weather-item-label { font-size: 0.7rem; color: #f9a8d4; font-weight: 700; margin-bottom: 4px; }
+  .weather-item-value { font-size: 1rem; font-weight: 900; color: #be185d; }
 
   /* 地図 */
-  .map-title {
-    font-size: 0.78rem; font-weight: 700; color: #a0aec0;
-    letter-spacing: 2px; margin-bottom: 12px; text-align: center;
-  }
-
-  #map {
-    width: 100%; height: 260px;
-    border-radius: 12px; overflow: hidden;
-    border: 2px solid #e2e8f0;
-  }
+  #map { width: 100%; height: 240px; border-radius: 16px; overflow: hidden; border: 2px solid #fbb6ce; }
 
   /* エラー */
   .error-card {
-    background: #fff5f5; border: 2px solid #feb2b2;
-    border-radius: 16px; padding: 20px; text-align: center;
+    background: rgba(255,255,255,0.9);
+    border: 2px solid #fbb6ce;
+    border-radius: 20px; padding: 24px; text-align: center;
     display: none; animation: fadeUp 0.3s ease;
   }
   .error-card.show { display: block; }
-  .error-icon { font-size: 1.8rem; margin-bottom: 6px; }
-  .error-text { color: #c53030; font-weight: 700; font-size: 0.92rem; }
+  .error-icon { font-size: 2.2rem; margin-bottom: 8px; }
+  .error-text { color: #be185d; font-weight: 700; }
 
   /* スピナー */
-  .spinner { display: none; justify-content: center; padding: 20px 0; }
+  .spinner { display: none; justify-content: center; padding: 24px 0; }
   .spinner.show { display: flex; }
   .spinner-ring {
-    width: 36px; height: 36px;
-    border: 4px solid rgba(255,255,255,0.3);
+    width: 40px; height: 40px;
+    border: 4px solid rgba(255,255,255,0.4);
     border-top-color: #fff; border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+    animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .hint { text-align: center; color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-top: 12px; }
   .hidden { display: none !important; }
+  .hint { text-align: center; color: rgba(255,255,255,0.75); font-size: 0.8rem; margin-top: 12px; }
+
+  /* 吹き出し */
+  .balloon {
+    background: linear-gradient(135deg, #fce7f3, #fff0f6);
+    border: 2px solid #fbb6ce;
+    border-radius: 18px; padding: 14px 18px;
+    font-size: 0.95rem; color: #be185d; font-weight: 700;
+    text-align: center; position: relative; margin-bottom: 10px;
+    animation: fadeUp 0.3s ease;
+  }
+  .balloon::after {
+    content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: #fbb6ce;
+  }
 </style>
 </head>
 <body>
 <div class="container">
 
   <div class="hero">
-    <span class="hero-icon">📮</span>
-    <h1>郵便番号検索</h1>
-    <p>住所・天気・地図をまとめて表示</p>
+    <span class="hero-icon">💌</span>
+    <h1>住所かんたん検索</h1>
+    <p>郵便番号を入れるだけ！住所・天気・地図が全部わかるよ🌸</p>
   </div>
 
   <!-- 検索 -->
@@ -189,21 +209,22 @@
 
   <!-- 住所 -->
   <div class="card hidden" id="addrCard">
+    <div class="section-title">💌 住所</div>
     <div class="addr-zip"  id="addrZip"></div>
-    <div class="addr-body">
-      <div class="addr-pref" id="addrPref"></div>
-      <div class="addr-city" id="addrCity"></div>
-      <div class="addr-town" id="addrTown"></div>
-    </div>
-    <button class="copy-btn" id="copyBtn">📋 住所をコピー</button>
+    <div class="addr-pref" id="addrPref"></div>
+    <div class="addr-city" id="addrCity"></div>
+    <div class="addr-town" id="addrTown"></div>
+    <div class="balloon" id="addrBalloon"></div>
+    <button class="speak-btn" id="speakAddrBtn">🔊 住所をしゃべる</button>
+    <button class="copy-btn"  id="copyBtn">📋 住所をコピー</button>
   </div>
 
   <!-- 天気 -->
   <div class="card hidden" id="weatherCard">
-    <div class="weather-title">🌤 現在の天気</div>
-    <div class="weather-now">
-      <div class="weather-icon-big" id="wIcon"></div>
-      <div class="weather-now-info">
+    <div class="section-title">🌤 現在の天気</div>
+    <div class="weather-main">
+      <div class="weather-emoji" id="wEmoji"></div>
+      <div class="weather-info-main">
         <div class="weather-temp" id="wTemp"></div>
         <div class="weather-desc" id="wDesc"></div>
       </div>
@@ -222,121 +243,149 @@
         <div class="weather-item-value" id="wWind"></div>
       </div>
     </div>
+    <button class="speak-btn" id="speakWeatherBtn">🔊 天気をしゃべる</button>
   </div>
 
   <!-- 地図 -->
   <div class="card hidden" id="mapCard">
-    <div class="map-title">🗺 地図</div>
+    <div class="section-title">🗺 地図</div>
     <div id="map"></div>
   </div>
 
   <!-- エラー -->
   <div class="error-card" id="errorCard">
-    <div class="error-icon">🔍</div>
+    <div class="error-icon">🌸</div>
     <div class="error-text" id="errorText"></div>
   </div>
 
-  <p class="hint">ハイフンあり・なし、どちらでも検索できます</p>
+  <p class="hint">ハイフンあり・なし、どちらでも検索できるよ</p>
 </div>
 
 <script>
-  const zipInput  = document.getElementById('zipInput');
-  const clearBtn  = document.getElementById('clearBtn');
-  const searchBtn = document.getElementById('searchBtn');
-  const spinner   = document.getElementById('spinner');
-  const copyBtn   = document.getElementById('copyBtn');
+  const zipInput   = document.getElementById('zipInput');
+  const clearBtn   = document.getElementById('clearBtn');
+  const searchBtn  = document.getElementById('searchBtn');
+  const spinner    = document.getElementById('spinner');
+  const copyBtn    = document.getElementById('copyBtn');
+  const speakAddrBtn    = document.getElementById('speakAddrBtn');
+  const speakWeatherBtn = document.getElementById('speakWeatherBtn');
 
-  let map = null;
-  let marker = null;
-  let lastAddress = '';
+  let map = null, marker = null;
+  let lastAddress = '', lastWeatherText = '';
 
-  // 自動ハイフン
+  // 天気コード
+  const WMO = {
+    0:  { emoji: '☀️', desc: '快晴',       voice: ['快晴だよ！太陽ギラギラ！日焼け止め忘れずにね！', '最高の晴れ！お出かけ日和だよ！'] },
+    1:  { emoji: '🌤️', desc: '晴れ',       voice: ['晴れてるよ！気持ちいいね～！', 'いいお天気！洗濯物よく乾きそう！'] },
+    2:  { emoji: '⛅',  desc: '晴れ時々くもり', voice: ['晴れてるけど雲もあるよ。折りたたみ傘あると安心！'] },
+    3:  { emoji: '☁️', desc: 'くもり',     voice: ['くもり空だよ。なんか眠くなっちゃうね！', 'どんよりくもり。まったりしよ！'] },
+    45: { emoji: '🌫️', desc: '霧',         voice: ['霧が出てるよ！視界に気をつけてね！'] },
+    51: { emoji: '🌦️', desc: '霧雨',       voice: ['霧雨が降ってるよ。折りたたみ傘持ってってね！'] },
+    61: { emoji: '🌧️', desc: '小雨',       voice: ['小雨だよ。濡れないようにね！'] },
+    63: { emoji: '🌧️', desc: '雨',         voice: ['雨だよ！傘忘れないでね！', '雨だよ。今日はお家でまったりしよ？'] },
+    65: { emoji: '🌧️', desc: '大雨',       voice: ['大雨だよ！気をつけてね！外出は控えめに！'] },
+    71: { emoji: '🌨️', desc: '小雪',       voice: ['雪が降ってるよ！ふわふわ～！滑らないようにね！'] },
+    73: { emoji: '❄️',  desc: '雪',         voice: ['雪だよ！積もるかもね！防寒完璧にしてね！'] },
+    80: { emoji: '🌦️', desc: 'にわか雨',   voice: ['急に雨が降るかも！折りたたみ傘持ってってね！'] },
+    95: { emoji: '⛈️', desc: '雷雨',       voice: ['雷雨だよ！ゴロゴロ⚡外出は危険だよ！'] },
+  };
+
+  function getWMO(code) {
+    if (WMO[code]) return WMO[code];
+    const keys = Object.keys(WMO).map(Number).sort((a,b)=>a-b);
+    for (let i = keys.length-1; i >= 0; i--) if (keys[i] <= code) return WMO[keys[i]];
+    return { emoji: '🌈', desc: '不明', voice: ['お天気情報が取れなかったよ！'] };
+  }
+
+  // 入力処理
   zipInput.addEventListener('input', () => {
-    let v = zipInput.value.replace(/[^\d]/g, '').slice(0, 7);
-    zipInput.value = v.length > 3 ? v.slice(0,3) + '-' + v.slice(3) : v;
+    let v = zipInput.value.replace(/[^\d]/g,'').slice(0,7);
+    zipInput.value = v.length > 3 ? v.slice(0,3)+'-'+v.slice(3) : v;
     clearBtn.classList.toggle('show', zipInput.value.length > 0);
     hideAll();
   });
 
   zipInput.addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
-
-  clearBtn.addEventListener('click', () => {
-    zipInput.value = ''; clearBtn.classList.remove('show');
-    hideAll(); zipInput.focus();
-  });
-
+  clearBtn.addEventListener('click', () => { zipInput.value=''; clearBtn.classList.remove('show'); hideAll(); zipInput.focus(); });
   searchBtn.addEventListener('click', search);
 
   async function search() {
-    const raw = zipInput.value.replace(/-/g, '');
-    if (raw.length !== 7) { showError('7桁の郵便番号を入力してください'); return; }
+    const raw = zipInput.value.replace(/-/g,'');
+    if (raw.length !== 7) { showError('7桁の郵便番号を入力してね！'); return; }
 
     hideAll();
     spinner.classList.add('show');
     searchBtn.disabled = true;
 
     try {
-      // 1. 住所取得
+      // 住所取得
       const zRes  = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${raw}`);
       const zJson = await zRes.json();
-
-      if (zJson.status !== 200 || !zJson.results) {
-        showError('該当する住所が見つかりませんでした'); return;
-      }
+      if (zJson.status !== 200 || !zJson.results) { showError('該当する住所が見つからなかったよ😢'); return; }
 
       const r    = zJson.results[0];
-      const pref = r.address1;
-      const city = r.address2;
-      const town = r.address3;
+      const pref = r.address1, city = r.address2, town = r.address3;
+      const lat  = parseFloat(r.latitude), lon = parseFloat(r.longitude);
 
-      document.getElementById('addrZip').textContent  = `〒 ${raw.slice(0,3)}-${raw.slice(3)}`;
+      lastAddress = pref + city + town;
+      const zipFmt = `〒${raw.slice(0,3)}-${raw.slice(3)}`;
+
+      document.getElementById('addrZip').textContent  = zipFmt;
       document.getElementById('addrPref').textContent = pref;
       document.getElementById('addrCity').textContent = city;
       document.getElementById('addrTown').textContent = town;
-      lastAddress = pref + city + town;
-      copyBtn.textContent = '📋 住所をコピー';
-      copyBtn.classList.remove('copied');
+
+      const addrVoices = [
+        `${pref}の${city}${town}だよ！`, `${city}${town}ってところだよ！`,
+        `${pref}、${city}、${town}だよ～！`
+      ];
+      const addrMsg = addrVoices[Math.floor(Math.random()*addrVoices.length)];
+      document.getElementById('addrBalloon').textContent = '💬 ' + addrMsg;
       document.getElementById('addrCard').classList.remove('hidden');
 
-      // 2. 緯度経度（zipcloudのレスポンスから直接取得）
-      const lat = parseFloat(r.latitude);
-      const lon = parseFloat(r.longitude);
+      copyBtn.textContent = '📋 住所をコピー';
+      copyBtn.classList.remove('copied');
 
-      if (!lat || !lon) { showError('緯度経度の取得に失敗しました'); return; }
-
-      // 3. 天気取得（Open-Meteo）
+      // 天気取得
       const wRes  = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-        `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code` +
-        `&timezone=Asia%2FTokyo`
+        `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code&timezone=Asia%2FTokyo`
       );
       const wJson = await wRes.json();
       const cur   = wJson.current;
+      const wInfo = getWMO(cur.weather_code);
 
-      document.getElementById('wIcon').textContent  = weatherIcon(cur.weather_code);
+      document.getElementById('wEmoji').textContent = wInfo.emoji;
       document.getElementById('wTemp').textContent  = `${cur.temperature_2m}°C`;
-      document.getElementById('wDesc').textContent  = weatherDesc(cur.weather_code);
+      document.getElementById('wDesc').textContent  = wInfo.desc;
       document.getElementById('wFeel').textContent  = `${cur.apparent_temperature}°C`;
       document.getElementById('wHumid').textContent = `${cur.relative_humidity_2m}%`;
-      document.getElementById('wWind').textContent  = `${cur.wind_speed_10m} m/s`;
+      document.getElementById('wWind').textContent  = `${cur.wind_speed_10m}m/s`;
+
+      const wVoice = wInfo.voice[Math.floor(Math.random()*wInfo.voice.length)];
+      lastWeatherText = `${city}の今の天気は${wInfo.desc}。気温は${cur.temperature_2m}度。${wVoice}`;
+
       document.getElementById('weatherCard').classList.remove('hidden');
 
-      // 4. 地図表示
+      // 地図
       document.getElementById('mapCard').classList.remove('hidden');
       if (!map) {
         map = L.map('map').setView([lat, lon], 15);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors'
+          attribution: '© OpenStreetMap'
         }).addTo(map);
-        marker = L.marker([lat, lon]).addTo(map).bindPopup(pref + city + town).openPopup();
+        marker = L.marker([lat, lon]).addTo(map).bindPopup(lastAddress).openPopup();
       } else {
         map.setView([lat, lon], 15);
-        marker.setLatLng([lat, lon]).setPopupContent(pref + city + town).openPopup();
+        marker.setLatLng([lat, lon]).setPopupContent(lastAddress).openPopup();
       }
       setTimeout(() => map.invalidateSize(), 100);
 
-    } catch (e) {
-      showError('通信エラーが発生しました。しばらくしてお試しください。');
+      // 自動でしゃべる
+      speak(`${zipFmt}は${lastAddress}だよ！${wVoice}`);
+
+    } catch(e) {
+      showError('通信エラーが起きちゃったよ😢もう一度試してね！');
     } finally {
       spinner.classList.remove('show');
       searchBtn.disabled = false;
@@ -348,51 +397,39 @@
     if (!lastAddress) return;
     try {
       await navigator.clipboard.writeText(lastAddress);
-      copyBtn.textContent = '✅ コピーしました！';
+      copyBtn.textContent = '✅ コピーできたよ！';
       copyBtn.classList.add('copied');
       setTimeout(() => { copyBtn.textContent = '📋 住所をコピー'; copyBtn.classList.remove('copied'); }, 2000);
-    } catch { copyBtn.textContent = '⚠️ コピーできませんでした'; }
+    } catch { copyBtn.textContent = '⚠️ コピーできなかったよ'; }
   });
+
+  // しゃべるボタン
+  speakAddrBtn.addEventListener('click', () => speak(lastAddress + 'だよ！'));
+  speakWeatherBtn.addEventListener('click', () => speak(lastWeatherText));
+
+  function speak(text) {
+    if (!text || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP'; u.pitch = 1.3; u.rate = 1.0;
+    const voices = window.speechSynthesis.getVoices();
+    const jaVoice = voices.find(v => v.lang.startsWith('ja') && /female|woman|kyoko|haruka|mizuki/i.test(v.name))
+      || voices.find(v => v.lang.startsWith('ja'));
+    if (jaVoice) u.voice = jaVoice;
+    window.speechSynthesis.speak(u);
+  }
+
+  window.speechSynthesis && window.speechSynthesis.addEventListener('voiceschanged', ()=>{});
 
   function showError(msg) {
     document.getElementById('errorText').textContent = msg;
     document.getElementById('errorCard').classList.add('show');
+    speak(msg);
   }
 
   function hideAll() {
     ['addrCard','weatherCard','mapCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById('errorCard').classList.remove('show');
-  }
-
-  // 天気コード → アイコン
-  function weatherIcon(code) {
-    if (code === 0)              return '☀️';
-    if (code <= 2)               return '🌤';
-    if (code === 3)              return '☁️';
-    if (code <= 49)              return '🌫';
-    if (code <= 59)              return '🌦';
-    if (code <= 69)              return '🌧';
-    if (code <= 79)              return '❄️';
-    if (code <= 84)              return '🌧';
-    if (code <= 94)              return '🌨';
-    return '⛈';
-  }
-
-  // 天気コード → 説明
-  function weatherDesc(code) {
-    if (code === 0)  return '快晴';
-    if (code === 1)  return 'ほぼ晴れ';
-    if (code === 2)  return '一部曇り';
-    if (code === 3)  return '曇り';
-    if (code <= 49)  return '霧';
-    if (code <= 59)  return '霧雨';
-    if (code <= 67)  return '雨';
-    if (code <= 69)  return '雨/雪';
-    if (code <= 79)  return '雪';
-    if (code <= 82)  return 'にわか雨';
-    if (code <= 84)  return '強いにわか雨';
-    if (code <= 94)  return '雪のにわか降り';
-    return '雷雨';
   }
 </script>
 </body>
